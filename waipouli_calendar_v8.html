@@ -1817,17 +1817,13 @@ function goToday(){
     const target=activeToday||nextUp||filtered[0];
     if(target){
       selectedUnit=target.unit;
-      ucCurY=t.getFullYear();
-      ucCurM=t.getMonth();
-      // If unit doesn't span today's month, go to unit start month
+      // Reuse the full proven render path (rebuilds list, card, cal, recenters with mobile fallback)
+      renderUnit();
+      // If the unit spans today but starts in an earlier month, show today's month
       const sd=pd(target.start),ed=pd(target.end);
-      if(t<sd||t>ed){ucCurY=sd.getFullYear();ucCurM=sd.getMonth();}
-      const u=UNITS.find(u=>u.unit===selectedUnit);
-      if(u){
-        buildUnitList(filtered.sort((a,b)=>a.start.localeCompare(b.start)));
-        highlightListItem(selectedUnit,true);
-        renderUnitCard(u);
-        renderUnitCal(u);
+      if(t>=sd&&t<=ed&&(ucCurY!==t.getFullYear()||ucCurM!==t.getMonth())){
+        ucCurY=t.getFullYear();ucCurM=t.getMonth();
+        renderUnitCal(target);
       }
     }
     return;
@@ -2253,8 +2249,9 @@ let ucCurY=new Date().getFullYear(), ucCurM=new Date().getMonth();
 
 function buildUnitList(sorted){
   const scroll=document.getElementById('unit-list-scroll');
-  scroll.innerHTML='';
+  scroll.scrollLeft=0;
   scroll.scrollTop=0;
+  scroll.innerHTML='';
   const count=document.getElementById('ul-count');
   count.textContent=`${sorted.length} UNIT${sorted.length!==1?'S':''} · BY START DATE`;
 
