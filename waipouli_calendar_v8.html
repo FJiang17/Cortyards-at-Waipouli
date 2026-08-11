@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Courtyards at Waipouli Construction Schedule v7</title>
+<title>Courtyards at Waipouli Construction Schedule v8</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -37,6 +37,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;disp
 .bh{background:var(--heavy-bg);color:var(--heavy);border:1px solid rgba(251,146,60,.25);}
 .ba{background:var(--ada-bg);  color:var(--ada);  border:1px solid rgba(183,140,250,.25);}
 .bt{background:rgba(56,189,248,.08);color:var(--accent);border:1px solid rgba(56,189,248,.25);}
+.bs{background:rgba(56,189,248,.12);color:var(--accent);border:1px solid rgba(56,189,248,.4);font-weight:600;}
 
 /* TOOLBAR — two tightly packed rows on mobile */
 #toolbar{flex-shrink:0;padding:5px 10px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:0;background:var(--bg);z-index:20;overflow:visible;}
@@ -538,6 +539,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;disp
   [data-theme="light"] .badge.bl { color:var(--light); border-color:var(--light); }
   [data-theme="light"] .badge.bh { color:var(--heavy); border-color:var(--heavy); }
   [data-theme="light"] .badge.ba { color:var(--ada); border-color:var(--ada); }
+  .badge.bs { color:var(--accent); border-color:var(--accent); }
   /* Legend dots */
   [data-theme="light"] .leg-dot { }
   /* Panel */
@@ -1011,9 +1013,10 @@ body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;disp
 <div id="topbar">
   <div style="min-width:0;flex:1;overflow:hidden;">
     <div class="t1">Courtyards at Waipouli</div>
-    <div class="t2">PROJECT 26-030 &nbsp;·&nbsp; CONSTRUCTION SCHEDULE &nbsp;·&nbsp; 6/5/2026</div>
+    <div class="t2">PROJECT 26-030 &nbsp;·&nbsp; CONSTRUCTION SCHEDULE</div>
   </div>
   <div class="badges">
+    <div class="badge bs" id="sched-badge">SCHED 8/10/26</div>
     <div class="badge bt">82 UNITS</div>
     <div class="badge bl">LIGHT × 43</div>
     <div class="badge bh">HEAVY × 34</div>
