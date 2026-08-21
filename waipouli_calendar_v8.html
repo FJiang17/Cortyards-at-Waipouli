@@ -1044,7 +1044,7 @@ body{background:var(--bg);color:var(--text);font-family:'Helvetica Neue',Helveti
     <div class="t2">PROJECT 26-030 &nbsp;·&nbsp; CONSTRUCTION SCHEDULE</div>
   </div>
   <div class="badges">
-    <div class="badge bs" id="sched-badge">SCHED 8/10/26</div>
+    <div class="badge bs" id="sched-badge">SCHED 8/21/26</div>
     <div class="badge bt">82 UNITS</div>
     <div class="badge bl">LIGHT × 43</div>
     <div class="badge bh">HEAVY × 34</div>
@@ -3666,7 +3666,7 @@ function printLookahead(){
   const end=new Date(mon);end.setDate(end.getDate()+25);
   let html='<table class="la-outer"><thead><tr><td class="la-headcell">';
   html+='<div class="la-title">Courtyards at Waipouli — 4-Week Look-Ahead</div>';
-  html+='<div class="la-sub">PROJECT 26-030 · '+fm(mon)+' – '+fm(end)+', '+end.getFullYear()+' · SCHED 8/10/26 · FILTER: '+activeFilter+' · Printed '+new Date().toLocaleString()+'</div>';
+  html+='<div class="la-sub">PROJECT 26-030 · '+fm(mon)+' – '+fm(end)+', '+end.getFullYear()+' · SCHED 8/21/26 · FILTER: '+activeFilter+' · Printed '+new Date().toLocaleString()+'</div>';
   html+='</td></tr></thead><tbody><tr><td class="la-bodycell">';
   for(let w=0;w<4;w++){
     const ws=new Date(mon);ws.setDate(ws.getDate()+w*7);
