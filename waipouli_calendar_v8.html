@@ -330,6 +330,38 @@ body{background:var(--bg);color:var(--text);font-family:'Helvetica Neue',Helveti
 .pil{font-size:clamp(9px,1vw,13px);color:var(--muted2);letter-spacing:.09em;margin-bottom:8px;text-transform:uppercase;}
 .items-grid{display:flex;flex-wrap:wrap;gap:6px;}
 .itag{padding:3px 9px;border-radius:4px;font-size:11px;border:1px solid var(--border2);color:var(--text);line-height:1.5;white-space:nowrap;}
+/* ── Checkable replace-items ── */
+.itag-ck{display:inline-flex;align-items:center;gap:6px;cursor:pointer;user-select:none;
+  padding:4px 10px 4px 7px;transition:all .12s;-webkit-tap-highlight-color:transparent;}
+.itag-ck:hover{border-color:var(--accent);}
+.itag-ck .ck{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;
+  width:14px;height:14px;border-radius:3px;border:1.5px solid currentColor;opacity:.55;
+  font-size:10px;line-height:1;font-weight:900;}
+.itag-ck.done{background:rgba(52,217,123,.14)!important;border-color:rgba(52,217,123,.55)!important;color:#34d97b!important;}
+.itag-ck.done .ck{background:#34d97b;border-color:#34d97b;color:#0d0f14;opacity:1;}
+.itag-ck.done .ck::after{content:'✓';}
+.itag-ck.done .itxt{text-decoration:line-through;text-decoration-thickness:1px;opacity:.75;}
+[data-theme="light"] .itag-ck.done{background:rgba(15,122,62,.12)!important;border-color:rgba(15,122,62,.45)!important;color:#0f7a3e!important;}
+[data-theme="light"] .itag-ck.done .ck{background:#0f7a3e;border-color:#0f7a3e;color:#fff;}
+.scope-hdr{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+.scope-hdr .pil{margin-bottom:0;}
+.scope-count{font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:.04em;padding:2px 9px;border-radius:20px;
+  background:rgba(255,255,255,.05);color:var(--muted2);border:1px solid var(--border2);white-space:nowrap;}
+.scope-count.partial{background:rgba(251,146,60,.12);color:#fb923c;border-color:rgba(251,146,60,.4);}
+.scope-count.all{background:rgba(52,217,123,.14);color:#34d97b;border-color:rgba(52,217,123,.45);}
+[data-theme="light"] .scope-count.partial{background:rgba(166,48,0,.08);color:#a63000;}
+[data-theme="light"] .scope-count.all{background:rgba(15,122,62,.1);color:#0f7a3e;}
+.scope-mini{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;
+  padding:1px 7px;border-radius:20px;border:1px solid var(--border2);color:var(--muted2);background:rgba(255,255,255,.04);}
+.scope-mini.partial{background:rgba(251,146,60,.12);color:#fb923c;border-color:rgba(251,146,60,.4);}
+.scope-mini.all{background:rgba(52,217,123,.14);color:#34d97b;border-color:rgba(52,217,123,.45);}
+.itag-ck.ro{cursor:default;}
+.itag-ck.ro:hover{border-color:var(--border2);}
+.itag-ck.done.ro:hover{border-color:rgba(52,217,123,.55)!important;}
+#sync-dot{font-size:11px;line-height:1;transition:color .2s;}
+#sync-count{font-size:9px;font-weight:800;color:#fb923c;margin-left:1px;}
+.scope-bar{height:3px;border-radius:2px;background:var(--border2);overflow:hidden;margin-top:9px;}
+.scope-bar-fill{height:100%;border-radius:2px;background:#34d97b;transition:width .25s;}
 .itag-major{background:rgba(251,146,60,.15);border-color:rgba(251,146,60,.5);color:#fdba74;}
 .itag-minor{background:rgba(255,255,255,.04);border-color:var(--border2);color:var(--muted2);}
 [data-theme="light"] .itag-major{background:rgba(234,88,12,.08);border-color:rgba(234,88,12,.3);color:#c2410c;}
@@ -1099,6 +1131,26 @@ body{background:var(--bg);color:var(--text);font-family:'Helvetica Neue',Helveti
     <button class="vbtn" id="vbtn-bldg"  onclick="setView('bldg',this)">BLDG</button>
     <button class="vbtn" id="vbtn-dash" onclick="openDashboard()" title="Project Overview" style="margin-left:2px;font-size:14px;padding:4px 8px;">📊</button>
     <button class="vbtn" id="vbtn-la" onclick="printLookahead()" title="4-Week Look-Ahead (Print)" style="margin-left:2px;font-size:14px;padding:4px 8px;">🖨</button>
+    <div id="items-menu-wrap" style="position:relative;flex-shrink:0;z-index:30;">
+      <button class="vbtn" id="vbtn-items" onclick="toggleItemsMenu(event)" title="Installed-items tracking"
+        style="margin-left:2px;font-size:14px;padding:4px 8px;display:inline-flex;align-items:center;gap:4px;">
+        ☑<span id="sync-dot" style="color:#8494aa;">○</span><span id="sync-count" style="display:none;"></span></button>
+      <div id="items-menu" style="display:none;position:absolute;top:calc(100% + 6px);right:0;min-width:210px;
+        background:var(--surface);border:1px solid var(--border2);border-radius:10px;overflow:hidden;
+        box-shadow:0 16px 40px rgba(0,0,0,.5);">
+        <div style="padding:8px 12px;font-size:9px;letter-spacing:.08em;color:var(--muted2);border-bottom:1px solid var(--border);">
+          INSTALLED ITEMS<span id="items-menu-stat" style="float:right;"></span></div>
+        <div class="sdrop-item" id="mi-sync" onclick="closeItemsMenu();ghLoad();">⟳&nbsp; Refresh from GitHub</div>
+        <div class="sdrop-item" id="mi-token" onclick="closeItemsMenu();setToken();">🔑&nbsp; <span id="mi-token-lbl">Editing token…</span></div>
+        <div class="sdrop-item" id="mi-link" onclick="closeItemsMenu();copyEditLink();">🔗&nbsp; Copy editing link</div>
+        <div style="height:1px;background:var(--border);margin:2px 0;"></div>
+        <div class="sdrop-item" onclick="exportItemDone();closeItemsMenu();">⬇&nbsp; Export backup (.json)</div>
+        <div class="sdrop-item" onclick="document.getElementById('items-file').click();closeItemsMenu();">⬆&nbsp; Import / merge</div>
+        <div class="sdrop-item" onclick="closeItemsMenu();resetItemDone();" style="color:#f87171;">✕&nbsp; Clear all checks</div>
+      </div>
+      <input type="file" id="items-file" accept=".json,application/json" style="display:none"
+        onchange="if(this.files[0])importItemDone(this.files[0]);this.value='';">
+    </div>
     <div class="search-wrap" style="margin-left:auto;">
       <input id="searchInput" type="text" placeholder="Search unit…" autocomplete="off"
         oninput="onSearch(this.value)" onkeydown="onSearchKey(event)">
@@ -1263,8 +1315,13 @@ body{background:var(--bg);color:var(--text);font-family:'Helvetica Neue',Helveti
     <div class="pdl" id="pprogl">PROGRESS</div>
     <div class="pprog-bar"><div class="pprog-fill" id="pprogfill"></div></div>
   </div>
-  <div class="pil">REPLACE ITEMS</div>
+  <div class="scope-hdr">
+    <div class="pil">REPLACE ITEMS</div>
+    <span class="scope-count" id="pscope-count">0 / 0</span>
+  </div>
   <div class="items-grid" id="pitems"></div>
+  <div class="scope-bar"><div class="scope-bar-fill" id="pscope-bar" style="width:0%"></div></div>
+  <div id="pscope-hint" style="margin-top:9px;font-size:10px;color:var(--muted2);letter-spacing:.03em;"></div>
   <div id="pacts-wrap" style="margin-top:20px;display:none;">
     <div class="pil" id="pacts-label">SCHEDULE</div>
     <div id="pacts"></div>
@@ -1551,6 +1608,286 @@ function renderItemTags(itemsStr){
     const t=i.trim();
     return `<span class="itag ${itemCatClass(t)}">${t}</span>`;
   }).join('');
+}
+
+// ══ SCOPE ITEM TRACKING ══════════════════════════════════════════
+// Per-item installed state, keyed "<unit>::<item>" so it survives
+// re-ordering of a unit's item list. Persisted to localStorage; the
+// store is per-browser, so EXPORT/IMPORT moves it between devices.
+const ITEM_STORE_KEY='waipouli-items-done';
+const GH={owner:'FJiang17',repo:'Cortyards-at-Waipouli',path:'items-done.json',branch:'main'};
+const TOKEN_KEY='waipouli-gh-token';
+
+let ITEMDONE={};                    // key -> 1, the merged view we render
+let PENDING={};                     // key -> 1|0, my edits not yet on GitHub
+let ghToken=null, ghSha=null;
+let ghState='local';                // local | readonly | synced | saving | offline | error
+let ghTimer=null, ghLastErr='';
+
+// Local cache first, so the page is useful before/without the network
+try{ ITEMDONE=JSON.parse(localStorage.getItem(ITEM_STORE_KEY)||'{}')||{}; }catch(e){ ITEMDONE={}; }
+try{ PENDING=JSON.parse(localStorage.getItem(ITEM_STORE_KEY+'-pending')||'{}')||{}; }catch(e){ PENDING={}; }
+
+function saveItemDone(){
+  try{
+    localStorage.setItem(ITEM_STORE_KEY,JSON.stringify(ITEMDONE));
+    localStorage.setItem(ITEM_STORE_KEY+'-pending',JSON.stringify(PENDING));
+  }catch(e){ showActivityToast('Could not save locally'); }
+}
+
+// ── Token: taken from #t=… once, then stripped from the URL so it does not
+//    sit in the address bar for screenshots. Lives in localStorage after that.
+(function captureToken(){
+  try{
+    const m=(location.hash||'').match(/[#&]t=([A-Za-z0-9_\-]+)/);
+    if(m){
+      ghToken=m[1];
+      localStorage.setItem(TOKEN_KEY,ghToken);
+      const clean=(location.hash||'').replace(/[#&]t=[A-Za-z0-9_\-]+/,'').replace(/^#$/,'');
+      history.replaceState(null,'',location.pathname+location.search+(clean&&clean!=='#'?clean:''));
+    }else{
+      ghToken=localStorage.getItem(TOKEN_KEY)||null;
+    }
+  }catch(e){ ghToken=null; }
+})();
+function ghCanWrite(){ return !!ghToken; }
+
+function setGhState(st,err){
+  ghState=st; ghLastErr=err||'';
+  const el=document.getElementById('sync-dot'); if(!el) return;
+  const map={
+    synced  :['●','#34d97b','All changes saved to GitHub'],
+    saving  :['◌','#38bdf8','Saving…'],
+    readonly:['◉','#8494aa','View only — read from GitHub'],
+    offline :['○','#fb923c','Offline — changes queued, will retry'],
+    error   :['▲','#f87171','Sync problem: '+ghLastErr],
+    local   :['○','#8494aa','Local only — not synced']
+  };
+  const [glyph,color,title]=map[st]||map.local;
+  el.textContent=glyph; el.style.color=color; el.title=title;
+  const n=Object.keys(PENDING).length;
+  const c=document.getElementById('sync-count');
+  if(c){ c.textContent=n?String(n):''; c.style.display=n?'inline':'none'; }
+}
+
+// ── Read: public raw file, no token needed, so viewers see your checks ──
+async function ghLoad(){
+  const url=`https://raw.githubusercontent.com/${GH.owner}/${GH.repo}/${GH.branch}/${GH.path}?cb=`+Date.now();
+  try{
+    const r=await fetch(url,{cache:'no-store'});
+    if(r.status===404){ ITEMDONE=applyPending({}); saveItemDone();
+      setGhState(ghCanWrite()?'synced':'readonly'); refreshScopeViews(); return; }
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j=await r.json();
+    const remote=(j&&j.done)||{};
+    ITEMDONE=applyPending(remote);
+    saveItemDone();
+    setGhState(ghCanWrite()?(Object.keys(PENDING).length?'saving':'synced'):'readonly');
+    refreshScopeViews();
+    if(ghCanWrite()&&Object.keys(PENDING).length) ghPush();
+  }catch(e){
+    setGhState('offline',e.message);
+    refreshScopeViews();
+  }
+}
+// My un-pushed edits always win over what the server currently has
+function applyPending(remote){
+  const out=Object.assign({},remote);
+  for(const k in PENDING){ if(PENDING[k]) out[k]=1; else delete out[k]; }
+  return out;
+}
+
+// ── Write: GitHub Contents API, token required ──
+function schedulePush(){
+  if(!ghCanWrite()){ return; }
+  setGhState('saving');
+  if(ghTimer) clearTimeout(ghTimer);
+  ghTimer=setTimeout(ghPush,1200);   // batch rapid clicking into one commit
+}
+
+async function ghPush(attempt){
+  attempt=attempt||0;
+  if(!ghCanWrite()) return;
+  if(!Object.keys(PENDING).length){ setGhState('synced'); return; }
+  setGhState('saving');
+  const api=`https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${GH.path}`;
+  const hdr={Authorization:'Bearer '+ghToken,Accept:'application/vnd.github+json'};
+  try{
+    // Re-read right before writing so a change from another device is not lost
+    let remote={},sha=null;
+    const g=await fetch(api+'?ref='+GH.branch+'&cb='+Date.now(),{headers:hdr,cache:'no-store'});
+    if(g.status===401||g.status===403){ throw new Error('token rejected ('+g.status+')'); }
+    if(g.ok){
+      const meta=await g.json(); sha=meta.sha;
+      try{ remote=(JSON.parse(decodeURIComponent(escape(atob(meta.content.replace(/\s/g,'')))))||{}).done||{}; }catch(e){ remote={}; }
+    }else if(g.status!==404){ throw new Error('read HTTP '+g.status); }
+
+    const merged=applyPending(remote);
+    const body={
+      job:'26-030', updated:new Date().toISOString(),
+      note:'Installed replacement items. Written by the Waipouli calendar.',
+      done:merged
+    };
+    const put=await fetch(api,{method:'PUT',headers:Object.assign({'Content-Type':'application/json'},hdr),
+      body:JSON.stringify({
+        message:'Update installed items ('+Object.keys(merged).length+' checked)',
+        content:btoa(unescape(encodeURIComponent(JSON.stringify(body,null,1)))),
+        branch:GH.branch, ...(sha?{sha}:{})
+      })});
+    if(put.status===409||put.status===422){            // someone else wrote first
+      if(attempt<3){ return ghPush(attempt+1); }
+      throw new Error('conflict, gave up');
+    }
+    if(put.status===401||put.status===403){ throw new Error('token rejected ('+put.status+')'); }
+    if(!put.ok){ throw new Error('write HTTP '+put.status); }
+    const res=await put.json();
+    ghSha=res.content&&res.content.sha;
+    PENDING={}; ITEMDONE=merged; saveItemDone();
+    setGhState('synced'); refreshScopeViews();
+  }catch(e){
+    const msg=e.message||'failed';
+    if(/token rejected/.test(msg)){ setGhState('error',msg); showActivityToast('GitHub rejected the token'); }
+    else { setGhState('offline',msg); }
+    refreshScopeViews();
+  }
+}
+
+function copyEditLink(){
+  if(!ghToken){ showActivityToast('No token saved'); return; }
+  const url=location.origin+location.pathname+'#t='+ghToken;
+  const done=()=>showActivityToast('Editing link copied — treat it like a password');
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(done,()=>prompt('Copy this editing link:',url));
+  }else{ prompt('Copy this editing link:',url); }
+}
+function setToken(){
+  const cur=ghToken?'(a token is already saved)':'(none saved)';
+  const t=prompt('Paste a GitHub fine-grained token with Contents: Read and write on '+GH.repo+'.\n'+cur+'\n\nLeave blank and press OK to remove the saved token.');
+  if(t===null) return;
+  const v=t.trim();
+  if(!v){ try{localStorage.removeItem(TOKEN_KEY);}catch(e){} ghToken=null;
+          setGhState('readonly'); showActivityToast('Token removed'); refreshScopeViews(); return; }
+  ghToken=v; try{localStorage.setItem(TOKEN_KEY,v);}catch(e){}
+  showActivityToast('Token saved — checking…'); ghPush();
+}
+function splitItems(itemsStr){
+  return (itemsStr||'').split(',').map(x=>x.trim()).filter(Boolean);
+}
+function itemKey(unit,item){ return unit+'::'+item; }
+function isItemDone(unit,item){ return !!ITEMDONE[itemKey(unit,item)]; }
+function unitScope(u){
+  const items=splitItems(u.items);
+  const done=items.filter(it=>isItemDone(u.unit,it)).length;
+  return {items,done,total:items.length,pct:items.length?Math.round(done/items.length*100):0};
+}
+function scopeCls(done,total){ return total&&done===total?'all':done>0?'partial':''; }
+
+function toggleItem(unit,item,ev){
+  if(ev){ev.stopPropagation();ev.preventDefault();}
+  if(!ghCanWrite()){ showActivityToast('View only — open the editing link to make changes'); return; }
+  const k=itemKey(unit,item);
+  if(ITEMDONE[k]){ delete ITEMDONE[k]; PENDING[k]=0; }
+  else { ITEMDONE[k]=1; PENDING[k]=1; }
+  saveItemDone();
+  refreshScopeViews();
+  schedulePush();
+}
+// Repaint whatever else shows scope progress
+function refreshScopeViews(){
+  if(curView==='unit'){ const su=UNITS.find(x=>x.unit===selectedUnit); if(su) renderUnitCal(su); }
+  else if(curView==='bldg') renderBldg();
+  const pnl=document.getElementById('panel');
+  if(pnl&&pnl.style.display==='block'&&_panelUnit) renderScopeItems(_panelUnit);
+}
+
+function renderCheckItems(u){
+  const items=splitItems(u.items);
+  if(!items.length) return '<span style="font-size:11px;color:var(--muted2);">No items listed</span>';
+  return items.map(t=>{
+    const done=isItemDone(u.unit,t);
+    const esc=t.replace(/'/g,"\\'");
+    const ro=!ghCanWrite();
+    return `<span class="itag itag-ck ${itemCatClass(t)}${done?' done':''}${ro?' ro':''}" role="checkbox" tabindex="${ro?-1:0}"
+      aria-checked="${done}" aria-readonly="${ro}"
+      title="${ro?(done?'Installed':'Not yet installed')+' — view only':(done?'Installed — tap to undo':'Tap to mark installed')}"
+      onclick="toggleItem('${u.unit}','${esc}',event)"
+      onkeydown="if(event.key===' '||event.key==='Enter'){toggleItem('${u.unit}','${esc}',event);}"
+      ><span class="ck"></span><span class="itxt">${t}</span></span>`;
+  }).join('');
+}
+
+function renderScopeItems(u){
+  const el=document.getElementById('pitems'); if(!el) return;
+  el.innerHTML=renderCheckItems(u);
+  const sc=unitScope(u);
+  const c=document.getElementById('pscope-count');
+  if(c){ c.textContent=`${sc.done} / ${sc.total} INSTALLED`;
+         c.className='scope-count '+scopeCls(sc.done,sc.total); }
+  const b=document.getElementById('pscope-bar');
+  if(b) b.style.width=sc.pct+'%';
+  const h=document.getElementById('pscope-hint');
+  if(h) h.textContent=ghCanWrite()?'Tap an item to mark it installed.':'View only — showing what has been marked installed.';
+}
+
+let _itemsMenuOpen=false;
+function toggleItemsMenu(ev){
+  if(ev){ev.stopPropagation();}
+  const m=document.getElementById('items-menu');
+  _itemsMenuOpen=!_itemsMenuOpen;
+  m.style.display=_itemsMenuOpen?'block':'none';
+  if(_itemsMenuOpen){
+    let d=0,t=0; UNITS.forEach(u=>{const sc=unitScope(u);d+=sc.done;t+=sc.total;});
+    const st=document.getElementById('items-menu-stat');
+    if(st){st.textContent=d+' / '+t; st.style.color=d?(d===t?'#34d97b':'#fb923c'):'var(--muted2)';}
+    const lbl=document.getElementById('mi-token-lbl');
+    if(lbl) lbl.textContent=ghCanWrite()?'Replace / remove token':'Add editing token';
+    const lk=document.getElementById('mi-link');
+    if(lk) lk.style.display=ghCanWrite()?'':'none';
+    const sy=document.getElementById('mi-sync');
+    if(sy) sy.textContent=ghState==='offline'?'⟳  Retry sync':'⟳  Refresh from GitHub';
+  }
+}
+function closeItemsMenu(){
+  _itemsMenuOpen=false;
+  const m=document.getElementById('items-menu'); if(m) m.style.display='none';
+}
+document.addEventListener('click',e=>{
+  if(_itemsMenuOpen && !e.target.closest('#items-menu-wrap')) closeItemsMenu();
+});
+
+// Export / import so item state can move between phone and laptop
+function exportItemDone(){
+  const rows=[];
+  UNITS.forEach(u=>{const s=unitScope(u);
+    if(s.done) rows.push({unit:u.unit,bldg:u.bldg,done:s.items.filter(i=>isItemDone(u.unit,i))});});
+  const blob=new Blob([JSON.stringify({exported:new Date().toISOString(),job:'26-030',units:rows},null,2)],
+    {type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='waipouli-items-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  showActivityToast('Exported '+rows.length+' unit'+(rows.length!==1?'s':''));
+}
+function importItemDone(file){
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const d=JSON.parse(r.result);
+      if(!d||!Array.isArray(d.units)) throw 0;
+      let n=0;
+      d.units.forEach(row=>(row.done||[]).forEach(it=>{ITEMDONE[itemKey(row.unit,it)]=1;n++;}));
+      saveItemDone(); refreshScopeViews();
+      showActivityToast('Merged '+n+' item'+(n!==1?'s':''));
+    }catch(e){ showActivityToast('Could not read that file'); }
+  };
+  r.readAsText(file);
+}
+function resetItemDone(){
+  const n=Object.keys(ITEMDONE).length;
+  if(!n){ showActivityToast('Nothing to clear'); return; }
+  if(!confirm('Clear all '+n+' checked items?\n\nThis cannot be undone. Export first if you want a backup.')) return;
+  ITEMDONE={}; saveItemDone(); refreshScopeViews();
+  showActivityToast('Cleared');
 }
 
 // ── SUBCONTRACTORS ──
@@ -2425,12 +2762,13 @@ function renderUnitCard(u){
         <div class="ic-meta" style="flex:1;min-width:0;">
           <div class="ic-meta-top">
             ${u.cat} · Bldg ${u.bldg} · ${u.type}
+            ${(()=>{const sc=unitScope(u);return sc.total?`&nbsp;·&nbsp;<span class="scope-mini ${scopeCls(sc.done,sc.total)}">${sc.done}/${sc.total} items</span>`:'';})()}
             ${u.note?`&nbsp;·&nbsp;<span style="color:#fbbf24;">⚑ ${u.note}</span>`:''}
             &nbsp;·&nbsp;<span style="color:${statusColor};font-weight:700;">${statusText}</span>
           </div>
           <div class="ic-meta-dates">${fd(u.start)} &nbsp;→&nbsp; ${fd(u.end)} &nbsp;·&nbsp; ${dur} working day${dur!==1?'s':''}</div>
           <div class="ic-items" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;">
-            ${renderItemTags(u.items)}
+            ${renderCheckItems(u)}
           </div>
         </div>
         <div class="ic-prog-wrap">
@@ -3052,7 +3390,9 @@ function renderMonth(){
   grid.appendChild(frag);
 }
 
+let _panelUnit=null;
 function showPanel(u){
+  _panelUnit=u;
   const sd=pd(u.start),ed=pd(u.end);
   const dur=wdiff(sd,ed);
   const wdToday=today>=sd&&today<=ed?wdiff(sd,today):today>ed?dur:0;
@@ -3087,7 +3427,7 @@ function showPanel(u){
   document.getElementById('pprogfill').style.width=pct+'%';
   document.getElementById('pprogfill').style.background=color;
   document.getElementById('pprogl').textContent=`PROGRESS · ${pct}% (working days)`;
-  document.getElementById('pitems').innerHTML=renderItemTags(u.items);
+  renderScopeItems(u);
 
   // Update SCHEDULE label with date range
   const schedLabel=document.getElementById('pacts-label');
@@ -3272,6 +3612,18 @@ if(window.innerWidth < 600){
 document.querySelectorAll('.vbtn').forEach(b=>b.classList.remove('active-view'));
 document.getElementById('vbtn-'+curView).classList.add('active-view');
 renderCal();
+
+// Pull installed-item state from GitHub, then keep it fresh
+setGhState(ghCanWrite()?'synced':'readonly');
+ghLoad();
+setInterval(()=>{ if(document.visibilityState==='visible'&&ghState!=='saving') ghLoad(); },120000);
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible'&&ghState!=='saving') ghLoad();
+});
+window.addEventListener('online',()=>{ if(Object.keys(PENDING).length) ghPush(); else ghLoad(); });
+window.addEventListener('beforeunload',e=>{
+  if(ghCanWrite()&&Object.keys(PENDING).length){ e.preventDefault(); e.returnValue=''; }
+});
 
 function toggleTheme(){
   const isLight=document.documentElement.getAttribute('data-theme')==='light';
