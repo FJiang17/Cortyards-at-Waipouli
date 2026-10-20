@@ -1621,6 +1621,9 @@ const TOKEN_KEY='waipouli-gh-token';
 let ITEMDONE={};                    // key -> 1, the merged view we render
 let PENDING={};                     // key -> 1|0, my edits not yet on GitHub
 let ghToken=null, ghSha=null;
+const TS_KEY=ITEM_STORE_KEY+'-ts';   // `updated` of our last successful write
+let lastWrittenTs='';
+try{ lastWrittenTs=localStorage.getItem(TS_KEY)||''; }catch(e){ lastWrittenTs=''; }
 let ghState='local';                // local | readonly | synced | saving | offline | error
 let ghTimer=null, ghLastErr='';
 
@@ -1672,21 +1675,46 @@ function setGhState(st,err){
 
 // ── Read: public raw file, no token needed, so viewers see your checks ──
 async function ghLoad(){
-  const url=`https://raw.githubusercontent.com/${GH.owner}/${GH.repo}/${GH.branch}/${GH.path}?cb=`+Date.now();
   try{
-    const r=await fetch(url,{cache:'no-store'});
-    if(r.status===404){ ITEMDONE=applyPending({}); saveItemDone();
-      setGhState(ghCanWrite()?'synced':'readonly'); refreshScopeViews(); return; }
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    const j=await r.json();
+    let j=null;
+    if(ghCanWrite()){
+      // Contents API: always current. raw.githubusercontent is behind a
+      // 5-minute CDN cache, so right after a write it still serves the old
+      // file — reading that would wipe the checks we just made.
+      const api=`https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${GH.path}?ref=${GH.branch}&cb=`+Date.now();
+      const r=await fetch(api,{cache:'no-store',headers:{Authorization:'Bearer '+ghToken,Accept:'application/vnd.github+json'}});
+      if(r.status===404){ j={done:{}}; }
+      else if(r.status===401||r.status===403){ throw new Error('token rejected ('+r.status+')'); }
+      else if(!r.ok){ throw new Error('HTTP '+r.status); }
+      else{
+        const meta=await r.json(); ghSha=meta.sha;
+        try{ j=JSON.parse(decodeURIComponent(escape(atob((meta.content||'').replace(/\s/g,''))))); }catch(e){ j={done:{}}; }
+      }
+    }else{
+      const url=`https://raw.githubusercontent.com/${GH.owner}/${GH.repo}/${GH.branch}/${GH.path}?cb=`+Date.now();
+      const r=await fetch(url,{cache:'no-store'});
+      if(r.status===404){ j={done:{}}; }
+      else if(!r.ok){ throw new Error('HTTP '+r.status); }
+      else { j=await r.json(); }
+    }
     const remote=(j&&j.done)||{};
+    const remoteTs=(j&&j.updated)||'';
+
+    // Guard: if what came back predates our own last write, it is a stale
+    // copy. Keep local state rather than throwing away finished work.
+    if(lastWrittenTs && remoteTs && remoteTs < lastWrittenTs){
+      setGhState(ghCanWrite()?'synced':'readonly');
+      refreshScopeViews();
+      return;
+    }
     ITEMDONE=applyPending(remote);
     saveItemDone();
     setGhState(ghCanWrite()?(Object.keys(PENDING).length?'saving':'synced'):'readonly');
     refreshScopeViews();
     if(ghCanWrite()&&Object.keys(PENDING).length) ghPush();
   }catch(e){
-    setGhState('offline',e.message);
+    const msg=e.message||'failed';
+    setGhState(/token rejected/.test(msg)?'error':'offline',msg);
     refreshScopeViews();
   }
 }
@@ -1742,6 +1770,8 @@ async function ghPush(attempt){
     if(!put.ok){ throw new Error('write HTTP '+put.status); }
     const res=await put.json();
     ghSha=res.content&&res.content.sha;
+    lastWrittenTs=body.updated;
+    try{ localStorage.setItem(TS_KEY,lastWrittenTs); }catch(e){}
     PENDING={}; ITEMDONE=merged; saveItemDone();
     setGhState('synced'); refreshScopeViews();
   }catch(e){
