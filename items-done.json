@@ -1,6 +1,6 @@
 {
  "job": "26-030",
- "updated": "2026-10-20T19:02:23.988Z",
+ "updated": "2026-10-20T19:02:28.754Z",
  "note": "Installed replacement items. Written by the Waipouli calendar.",
  "done": {
   "303::Disposal": 1,
@@ -46,6 +46,11 @@
   "1005::Robe Hook (x2)": 1,
   "104::Disposal": 1,
   "104::Entry Deadbolt & Lever": 1,
-  "104::Shower Rod": 1
+  "104::Shower Rod": 1,
+  "504::Disposal": 1,
+  "504::Shower Sets": 1,
+  "504::Entry Deadbolt & Lever": 1,
+  "504::Shower Rod": 1,
+  "504::Towel Bar": 1
  }
 }
