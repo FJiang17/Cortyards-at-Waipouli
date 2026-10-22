@@ -1,6 +1,6 @@
 {
  "job": "26-030",
- "updated": "2026-10-22T01:06:03.813Z",
+ "updated": "2026-10-22T01:06:08.586Z",
  "note": "Installed replacement items. Written by the Waipouli calendar.",
  "done": {
   "303::Disposal": 1,
@@ -100,6 +100,10 @@
   "208::Entry Deadbolt & Lever": 1,
   "208::Disposal": 1,
   "1008::Entry Deadbolt & Lever": 1,
-  "1008::Disposal": 1
+  "1008::Disposal": 1,
+  "503::Entry Deadbolt & Lever": 1,
+  "503::Shower Rod": 1,
+  "503::Disposal": 1,
+  "503::K. Faucets": 1
  }
 }
