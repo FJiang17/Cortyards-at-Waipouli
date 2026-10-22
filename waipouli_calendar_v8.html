@@ -79,9 +79,13 @@ body{background:var(--bg);color:var(--text);font-family:'Helvetica Neue',Helveti
 #searchDrop{
   display:none;position:absolute;top:calc(100% + 4px);left:0;
   width:clamp(200px,75vw,300px);
-  background:#1a2030;border:1px solid var(--border2);border-radius:8px;
+  background:var(--surface);border:1px solid var(--border2);border-radius:8px;
   box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:50;overflow:hidden;
 }
+[data-theme="light"] #searchDrop{background:#fff;box-shadow:0 8px 24px rgba(0,0,0,.18);}
+[data-theme="light"] #datepicker-pop{background:#fff;box-shadow:0 8px 32px rgba(0,0,0,.2);}
+#searchDrop .sdrop-item{color:var(--text);}
+#searchDrop .sdrop-date{color:var(--muted2);}
 .sdrop-item{padding:8px 12px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .1s;}
 .sdrop-item:hover,.sdrop-item.active{background:rgba(56,189,248,.08);}
 .sdrop-badge{padding:1px 6px;border-radius:3px;font-size:9px;font-weight:500;flex-shrink:0;}
@@ -634,7 +638,7 @@ body{background:var(--bg);color:var(--text);font-family:'Helvetica Neue',Helveti
   [data-theme="light"] .act-bar { color:var(--text) !important; }
   /* Search */
   [data-theme="light"] #searchInput { background:#fff; border-color:var(--border2); color:var(--text); }
-  [data-theme="light"] #sdrop { background:#fff; border-color:var(--border2); }
+  [data-theme="light"] #searchDrop { background:#fff; border-color:var(--border2); }
   [data-theme="light"] .sdrop-item:hover { background:var(--bg); }
   /* Datepicker */
   [data-theme="light"] #datepicker-pop { background:#fff !important; }
@@ -1211,8 +1215,8 @@ body{background:var(--bg);color:var(--text);font-family:'Helvetica Neue',Helveti
       <div id="datepicker-pop" style="
         display:none;position:fixed;top:50%;left:50%;
         transform:translate(-50%,-50%);
-        background:#1a2030;border:1px solid var(--border2);border-radius:10px;
-        padding:14px 16px;z-index:300;box-shadow:0 8px 32px rgba(0,0,0,.8);
+        background:var(--surface);border:1px solid var(--border2);border-radius:10px;
+        padding:14px 16px;z-index:300;box-shadow:0 8px 32px rgba(0,0,0,.45);
         width:min(280px,calc(100vw - 32px));box-sizing:border-box;
       ">
         <div style="font-size:10px;color:var(--muted2);margin-bottom:8px;letter-spacing:.06em;">JUMP TO DATE</div>
