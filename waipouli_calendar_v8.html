@@ -508,8 +508,28 @@ body{background:var(--bg);color:var(--text);font-family:'Helvetica Neue',Helveti
     #sub-drop-btn { min-height:28px !important; padding:3px 8px !important; font-size:10px !important; }
     #unit-hl-btn { min-height:28px !important; padding:3px 8px !important; font-size:10px !important; }
     .nbtn { width:28px !important; height:28px !important; font-size:13px !important; }
-    #searchInput { width:clamp(70px,20vw,130px) !important; }
-    #searchInput:focus { width:clamp(100px,35vw,180px) !important; }
+    /* Row 2 is wider than a phone, so the search box collapses to an icon
+       and expands over the toolbar when tapped. */
+    #row-view::-webkit-scrollbar{display:none;}
+    #row-view{gap:4px !important;}
+    #row-view > .flabel{display:none;}           /* "VIEW" label buys ~37px */
+    /* Pin the search icon to the right edge so it stays reachable
+       no matter how far the row is scrolled. */
+    #search-wrap{position:sticky;right:0;margin-left:auto;flex-shrink:0;
+      background:var(--bg);padding-left:6px;box-shadow:-10px 0 10px -6px var(--bg);}
+    #search-toggle{display:inline-flex !important;align-items:center;justify-content:center;}
+    #searchInput{display:none;}
+    .search-wrap.open #search-toggle{display:none !important;}
+    .search-wrap.open #searchInput{
+      display:block;position:fixed;left:8px;right:46px;width:auto !important;
+      z-index:60;font-size:16px;min-height:38px;padding:7px 30px 7px 12px;
+      box-shadow:0 10px 30px rgba(0,0,0,.45);
+    }
+    .search-wrap.open .search-icon{display:none;}
+    .search-wrap.open #search-close{display:flex !important;align-items:center;justify-content:center;}
+    .search-wrap.open #searchDrop{
+      position:fixed;left:8px;right:8px;width:auto !important;max-height:50vh;overflow-y:auto;z-index:60;
+    }
     .mlabel { font-size:clamp(11px,3vw,14px) !important; min-width:0 !important; }
     .legend { flex-wrap:nowrap !important; overflow-x:auto !important; scrollbar-width:none; }
     .chip { font-size:clamp(7px,2vw,11px) !important; height:clamp(22px,5vw,30px) !important; }
@@ -1122,7 +1142,7 @@ body{background:var(--bg);color:var(--text);font-family:'Helvetica Neue',Helveti
     </div>
   </div>
   <!-- Row 2: VIEW toggle -->
-  <div style="display:flex;align-items:center;gap:5px;flex-wrap:nowrap;width:100%;padding:5px 0;border-bottom:1px solid var(--border);">
+  <div id="row-view" style="display:flex;align-items:center;gap:5px;flex-wrap:nowrap;width:100%;padding:5px 0;border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
     <span class="flabel">VIEW</span>
     <button class="vbtn" id="vbtn-day"   onclick="setView('day',this)">DAY</button>
     <button class="vbtn" id="vbtn-week"  onclick="setView('week',this)">WEEK</button>
@@ -1151,10 +1171,15 @@ body{background:var(--bg);color:var(--text);font-family:'Helvetica Neue',Helveti
       <input type="file" id="items-file" accept=".json,application/json" style="display:none"
         onchange="if(this.files[0])importItemDone(this.files[0]);this.value='';">
     </div>
-    <div class="search-wrap" style="margin-left:auto;">
+    <div class="search-wrap" id="search-wrap" style="margin-left:auto;">
+      <button class="vbtn" id="search-toggle" onclick="openSearch(event)" title="Search unit"
+        style="display:none;font-size:14px;padding:4px 9px;">⌕</button>
       <input id="searchInput" type="text" placeholder="Search unit…" autocomplete="off"
         oninput="onSearch(this.value)" onkeydown="onSearchKey(event)">
       <span class="search-icon">⌕</span>
+      <button id="search-close" onclick="closeSearch()" title="Close search"
+        style="display:none;position:fixed;z-index:61;background:var(--border2);border:1px solid var(--border2);
+        color:var(--text);width:30px;height:30px;border-radius:50%;font-size:14px;line-height:1;cursor:pointer;">✕</button>
       <div id="searchDrop"></div>
     </div>
   </div>
@@ -3527,6 +3552,42 @@ document.addEventListener('keydown',e=>{
 // ── SEARCH ──
 let dropIdx=-1;
 
+function isNarrow(){ return window.innerWidth<=599; }
+function openSearch(ev){
+  if(ev) ev.stopPropagation();
+  const wrap=document.getElementById('search-wrap');
+  const inp=document.getElementById('searchInput');
+  wrap.classList.add('open');
+  positionSearch();
+  inp.focus(); inp.select();
+}
+function positionSearch(){
+  const wrap=document.getElementById('search-wrap');
+  if(!wrap||!wrap.classList.contains('open')) return;
+  const tb=document.getElementById('toolbar');
+  const top=Math.round(tb.getBoundingClientRect().bottom)+6;
+  const inp=document.getElementById('searchInput');
+  const btn=document.getElementById('search-close');
+  const drop=document.getElementById('searchDrop');
+  inp.style.top=top+'px';
+  btn.style.top=(top+4)+'px'; btn.style.right='8px';
+  if(drop) drop.style.top=(top+46)+'px';
+}
+function closeSearch(){
+  const wrap=document.getElementById('search-wrap');
+  if(!wrap) return;
+  wrap.classList.remove('open');
+  const inp=document.getElementById('searchInput');
+  inp.value=''; inp.blur();
+  const drop=document.getElementById('searchDrop');
+  if(drop) drop.style.display='none';
+}
+window.addEventListener('resize',()=>{ if(!isNarrow()) closeSearch(); else positionSearch(); });
+document.addEventListener('click',e=>{
+  const wrap=document.getElementById('search-wrap');
+  if(wrap&&wrap.classList.contains('open')&&!e.target.closest('#search-wrap')) closeSearch();
+});
+
 function onSearch(val){
   const q=val.trim().toLowerCase();
   const drop=document.getElementById('searchDrop');
@@ -3549,6 +3610,7 @@ function onSearch(val){
 }
 
 function onSearchKey(e){
+  if(e.key==='Escape'){ closeSearch(); return; }
   const drop=document.getElementById('searchDrop');
   const items=[...drop.querySelectorAll('.sdrop-item')];
   if(!items.length)return;
@@ -3567,6 +3629,8 @@ function closeDrop(){
   document.getElementById('searchDrop').style.display='none';
   document.getElementById('searchInput').value='';
   dropIdx=-1;
+  const wrap=document.getElementById('search-wrap');
+  if(wrap) wrap.classList.remove('open');
 }
 
 function jumpToUnit(unitNum){
