@@ -376,6 +376,8 @@ body{background:var(--bg);color:var(--text);font-family:'Helvetica Neue',Helveti
 .ptl-labels{display:flex;justify-content:space-between;margin-top:4px;font-size:9px;color:var(--muted2);margin-bottom:12px;}
 .ptl-labels span{white-space:nowrap;}
 /* SUB DROPDOWN — defined early so display:none is authoritative */
+#items-menu{display:none;position:fixed;background:var(--surface);border:1px solid var(--border2);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:500;overflow:hidden;min-width:210px;}
+[data-theme="light"] #items-menu{background:#fff;box-shadow:0 8px 24px rgba(0,0,0,.18);}
 #sub-drop-menu{display:none;position:fixed;background:var(--surface);border:1px solid var(--border2);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:500;overflow:hidden;min-width:180px;}
 
 /* UNIT HIGHLIGHT DROPDOWN */
@@ -538,6 +540,8 @@ body{background:var(--bg);color:var(--text);font-family:'Helvetica Neue',Helveti
     .day-num { font-size:clamp(9px,2.5vw,12px) !important; }
     #panel { border-radius:14px 14px 0 0 !important; }
     /* SUB + UNIT dropdown full width on mobile */
+    #items-menu { left:8px !important; right:8px !important; min-width:0 !important; width:calc(100vw - 16px) !important; }
+    #items-menu .sdrop-item { padding:12px 14px !important; font-size:13px !important; }
     #sub-drop-menu { left:8px !important; right:8px !important; min-width:0 !important; width:calc(100vw - 16px) !important; }
     #unit-hl-menu { left:8px !important; right:8px !important; min-width:0 !important; width:calc(100vw - 16px) !important; }
     #unit-hl-list { max-height:200px !important; }
@@ -1153,22 +1157,10 @@ body{background:var(--bg);color:var(--text);font-family:'Helvetica Neue',Helveti
     <button class="vbtn" id="vbtn-dash" onclick="openDashboard()" title="Project Overview" style="margin-left:2px;font-size:14px;padding:4px 8px;">📊</button>
     <button class="vbtn" id="vbtn-la" onclick="printLookahead()" title="4-Week Look-Ahead (Print)" style="margin-left:2px;font-size:14px;padding:4px 8px;">🖨</button>
     <div id="items-menu-wrap" style="position:relative;flex-shrink:0;z-index:30;">
-      <button class="vbtn" id="vbtn-items" onclick="toggleItemsMenu(event)" title="Installed-items tracking"
+      <button class="vbtn" id="vbtn-items" onclick="toggleItemsMenu(event)"
+        ontouchend="event.preventDefault();toggleItemsMenu(event)" title="Installed-items tracking"
         style="margin-left:2px;font-size:14px;padding:4px 8px;display:inline-flex;align-items:center;gap:4px;">
         ☑<span id="sync-dot" style="color:#8494aa;">○</span><span id="sync-count" style="display:none;"></span></button>
-      <div id="items-menu" style="display:none;position:absolute;top:calc(100% + 6px);right:0;min-width:210px;
-        background:var(--surface);border:1px solid var(--border2);border-radius:10px;overflow:hidden;
-        box-shadow:0 16px 40px rgba(0,0,0,.5);">
-        <div style="padding:8px 12px;font-size:9px;letter-spacing:.08em;color:var(--muted2);border-bottom:1px solid var(--border);">
-          INSTALLED ITEMS<span id="items-menu-stat" style="float:right;"></span></div>
-        <div class="sdrop-item" id="mi-sync" onclick="closeItemsMenu();ghLoad();">⟳&nbsp; Refresh from GitHub</div>
-        <div class="sdrop-item" id="mi-token" onclick="closeItemsMenu();setToken();">🔑&nbsp; <span id="mi-token-lbl">Editing token…</span></div>
-        <div class="sdrop-item" id="mi-link" onclick="closeItemsMenu();copyEditLink();">🔗&nbsp; Copy editing link</div>
-        <div style="height:1px;background:var(--border);margin:2px 0;"></div>
-        <div class="sdrop-item" onclick="exportItemDone();closeItemsMenu();">⬇&nbsp; Export backup (.json)</div>
-        <div class="sdrop-item" onclick="document.getElementById('items-file').click();closeItemsMenu();">⬆&nbsp; Import / merge</div>
-        <div class="sdrop-item" onclick="closeItemsMenu();resetItemDone();" style="color:#f87171;">✕&nbsp; Clear all checks</div>
-      </div>
       <input type="file" id="items-file" accept=".json,application/json" style="display:none"
         onchange="if(this.files[0])importItemDone(this.files[0]);this.value='';">
     </div>
@@ -1419,6 +1411,18 @@ body{background:var(--bg);color:var(--text);font-family:'Helvetica Neue',Helveti
 
 
 <!-- SUB dropdown menu (fixed-position, outside overflow containers) -->
+<div id="items-menu" style="display:none;">
+  <div style="padding:8px 12px;font-size:9px;letter-spacing:.08em;color:var(--muted2);border-bottom:1px solid var(--border);">
+    INSTALLED ITEMS<span id="items-menu-stat" style="float:right;"></span></div>
+  <div class="sdrop-item" id="mi-sync" onclick="closeItemsMenu();ghLoad();" ontouchend="event.preventDefault();closeItemsMenu();ghLoad();">⟳&nbsp; Refresh from GitHub</div>
+  <div class="sdrop-item" id="mi-token" onclick="closeItemsMenu();setToken();" ontouchend="event.preventDefault();closeItemsMenu();setToken();">🔑&nbsp; <span id="mi-token-lbl">Editing token…</span></div>
+  <div class="sdrop-item" id="mi-link" onclick="closeItemsMenu();copyEditLink();" ontouchend="event.preventDefault();closeItemsMenu();copyEditLink();">🔗&nbsp; Copy editing link</div>
+  <div style="height:1px;background:var(--border);margin:2px 0;"></div>
+  <div class="sdrop-item" onclick="closeItemsMenu();exportItemDone();" ontouchend="event.preventDefault();closeItemsMenu();exportItemDone();">⬇&nbsp; Export backup (.json)</div>
+  <div class="sdrop-item" onclick="closeItemsMenu();document.getElementById('items-file').click();" ontouchend="event.preventDefault();closeItemsMenu();document.getElementById('items-file').click();">⬆&nbsp; Import / merge</div>
+  <div class="sdrop-item" onclick="closeItemsMenu();resetItemDone();" ontouchend="event.preventDefault();closeItemsMenu();resetItemDone();" style="color:#f87171;">✕&nbsp; Clear all checks</div>
+</div>
+
 <div id="sub-drop-menu" style="display:none;">
   <div class="sub-opt" data-key="KM" onclick="selectSub('KM')" ontouchend="event.preventDefault();selectSub('KM')">
     <span class="sub-dot" style="background:#38bdf8"></span>Kauai Mechanical
@@ -1889,12 +1893,23 @@ function renderScopeItems(u){
   if(h) h.textContent=ghCanWrite()?'Tap an item to mark it installed.':'View only — showing what has been marked installed.';
 }
 
-let _itemsMenuOpen=false;
+let _itemsMenuOpen=false,_itemsJustOpened=false;
 function toggleItemsMenu(ev){
   if(ev){ev.stopPropagation();}
   const m=document.getElementById('items-menu');
+  const btn=document.getElementById('vbtn-items');
   _itemsMenuOpen=!_itemsMenuOpen;
-  m.style.display=_itemsMenuOpen?'block':'none';
+  if(_itemsMenuOpen){
+    const r=btn.getBoundingClientRect();
+    m.style.top=(r.bottom+5)+'px';
+    if(window.innerWidth>599){
+      m.style.left=''; m.style.right=Math.max(8,window.innerWidth-r.right)+'px';
+    }
+    m.style.display='block';
+    _itemsJustOpened=true; setTimeout(()=>{_itemsJustOpened=false;},300);
+  }else{
+    m.style.display='none';
+  }
   if(_itemsMenuOpen){
     let d=0,t=0; UNITS.forEach(u=>{const sc=unitScope(u);d+=sc.done;t+=sc.total;});
     const st=document.getElementById('items-menu-stat');
@@ -1912,7 +1927,8 @@ function closeItemsMenu(){
   const m=document.getElementById('items-menu'); if(m) m.style.display='none';
 }
 document.addEventListener('click',e=>{
-  if(_itemsMenuOpen && !e.target.closest('#items-menu-wrap')) closeItemsMenu();
+  if(_itemsMenuOpen && !_itemsJustOpened
+     && !e.target.closest('#items-menu') && !e.target.closest('#items-menu-wrap')) closeItemsMenu();
 });
 
 // Export / import so item state can move between phone and laptop
