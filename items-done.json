@@ -1,6 +1,6 @@
 {
  "job": "26-030",
- "updated": "2026-10-27T02:03:39.142Z",
+ "updated": "2026-10-27T02:03:54.893Z",
  "note": "Installed replacement items. Written by the Waipouli calendar.",
  "done": {
   "303::Disposal": 1,
@@ -110,6 +110,8 @@
   "407::Shower Rod": 1,
   "407::Towel Bar": 1,
   "407::Blinds": 1,
-  "1003::Paper Holder": 1
+  "1003::Paper Holder": 1,
+  "1010::Disposal": 1,
+  "1010::Entry Deadbolt & Lever": 1
  }
 }
